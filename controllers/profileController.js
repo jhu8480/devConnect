@@ -78,6 +78,29 @@ const createOrUpdateProfile = async (req, res) => {
   }
 };
 
+const getAllProfiles = async (req, res) => {
+  try { 
+    const  profiles = await Profile.find().populate('user', ['name', 'avatar']);
+    res.json(profiles);
+  } catch(e) {
+    console.error(e);
+    res.status(500).json('Internal server error');
+  }
+}
+
+const getProfileByUserId = async (req, res) => {
+  try { 
+    const  profile = await Profile.findOne({user: req.params.user_id}).populate('user', ['name', 'avatar']);
+    if (!profile) return res.status(400).json({msg: 'There is no profile for this user'})
+    res.json(profile);
+  } catch(e) {
+    console.error(e);
+    if(e.kind === 'ObjectId') {
+      return res.status(400).json({msg: 'Profile not found'});
+    }
+    res.status(500).json('Internal server error');
+  }
+}
 
 
-module.exports = { getMyProfile, createOrUpdateProfile };
+module.exports = { getMyProfile, createOrUpdateProfile, getAllProfiles, getProfileByUserId };
