@@ -1,7 +1,7 @@
 const router = require('express').Router();
 const { check, validationResult } = require('express-validator');
 const auth = require('../../middleware/auth');
-const { getMyProfile, createOrUpdateProfile, getAllProfiles, getProfileByUserId, deleteUserProfilePosts, addExperience, deleteExperience, addEducation, removeEducation } = require('../../controllers/profileController');
+const { getMyProfile, createOrUpdateProfile, getAllProfiles, getProfileByUserId, deleteUserProfilePosts, addExperience, deleteExperience, addEducation, removeEducation, getUserRepos } = require('../../controllers/profileController');
 
 // @route GET api/profile/me
 // @desc Get current user's profile
@@ -26,5 +26,8 @@ router.put('/education', [auth, [check('school', 'school is required').not().isE
 router.delete('/education/:edu_id', auth, removeEducation);
 
 router.delete('/', auth, deleteUserProfilePosts);
+
+// get user repos
+router.get('/github/:username', getUserRepos);
 
 module.exports = router;

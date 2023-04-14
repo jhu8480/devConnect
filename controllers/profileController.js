@@ -1,5 +1,7 @@
 const { User, Profile } = require('../models');
 const { check, validationResult } = require('express-validator');
+const config = require('config');
+const request = require('request');
 
 
 const getMyProfile = async (req, res) => {
@@ -221,4 +223,28 @@ const removeEducation = async (req, res) => {
   }
 };
 
-module.exports = { getMyProfile, createOrUpdateProfile, getAllProfiles, getProfileByUserId, deleteUserProfilePosts, addExperience, deleteExperience, addEducation, removeEducation };
+const getUserRepos = async (req, res) => {
+  try {
+    const options = {
+      uri: `https://api.github.com/users/${req.params.username}/repos?per_page=5&created:asc&client_id=${config.get('githubClientId')}&client_secret=${config.get('githubSecret')}`,
+      method: 'GET',
+      headers: {'user-agent': 'node.js'}
+    };
+    
+    request(options, (error, response, body) => {
+      if(error) {
+        console.error(e);
+      }
+      if (response.statusCode !== 200) {
+        return res.status(404).json('User not found');
+      }
+      res.json(JSON.parse(body));
+    })
+  
+  } catch(e) {
+    console.error(e);
+    res.status(500).json('Internal server error');
+  }
+};
+
+module.exports = { getMyProfile, createOrUpdateProfile, getAllProfiles, getProfileByUserId, deleteUserProfilePosts, addExperience, deleteExperience, addEducation, removeEducation, getUserRepos };
