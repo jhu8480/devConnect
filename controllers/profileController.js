@@ -102,5 +102,20 @@ const getProfileByUserId = async (req, res) => {
   }
 }
 
+const deleteUserProfilePosts = async (req, res) => {
+  try {
+    //TODO: remove related posts
 
-module.exports = { getMyProfile, createOrUpdateProfile, getAllProfiles, getProfileByUserId };
+    // remove profile
+    await Profile.findOneAndRemove({user: req.user.id});
+    // remove user
+    await User.findOneAndRemove({_id: req.user.id});
+    res.json({msg: 'User deleted!'})
+  } catch(e) {
+    console.error(e);
+    res.status(500).json('Internal server error');
+  }
+};
+
+
+module.exports = { getMyProfile, createOrUpdateProfile, getAllProfiles, getProfileByUserId, deleteUserProfilePosts };
