@@ -117,5 +117,56 @@ const deleteUserProfilePosts = async (req, res) => {
   }
 };
 
+const addExperience = async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({errors: errors.array()})
+  }
 
-module.exports = { getMyProfile, createOrUpdateProfile, getAllProfiles, getProfileByUserId, deleteUserProfilePosts };
+  const {
+    title,
+    company,
+    location,
+    from,
+    to,
+    current,
+    description
+  } = req.body;
+
+  const newExp = {
+    title,
+    company,
+    location,
+    from,
+    to,
+    current,
+    description
+  }
+
+  try {
+    const profile = await Profile.findOne({user: req.user.id});
+    profile.experience.unshift(newExp);
+    await profile.save();
+    res.json(profile);
+  } catch(e) {
+    console.error(e);
+    res.status(500).json('Internal server error');
+  }
+};
+
+const deleteExperience = async (req, res) => {
+  try {
+    const profile = await Profile.findOne({user: req.user.id});
+    // get remove index
+    const removeIndex = profile.experience.map(item => item.id).indexOf(req.params.exp_id);
+
+    profile.experience.splice(removeIndex, 1);
+    await profile.save();
+    res.json(profile);
+  } catch(e) {
+
+  }
+}
+
+
+module.exports = { getMyProfile, createOrUpdateProfile, getAllProfiles, getProfileByUserId, deleteUserProfilePosts, addExperience, deleteExperience };

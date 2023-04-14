@@ -1,7 +1,7 @@
 const router = require('express').Router();
 const { check, validationResult } = require('express-validator');
 const auth = require('../../middleware/auth');
-const { getMyProfile, createOrUpdateProfile, getAllProfiles, getProfileByUserId, deleteUserProfilePosts } = require('../../controllers/profileController');
+const { getMyProfile, createOrUpdateProfile, getAllProfiles, getProfileByUserId, deleteUserProfilePosts, addExperience, deleteExperience } = require('../../controllers/profileController');
 
 // @route GET api/profile/me
 // @desc Get current user's profile
@@ -19,6 +19,9 @@ router.post('/', [auth, [
   check('skills', 'Skills is required').not().isEmpty()
 ]], createOrUpdateProfile);
 
-router.delete('/', auth, deleteUserProfilePosts);
+router.put('/experience', auth, addExperience)
+router.delete('/experience/:exp_id', auth, deleteExperience);
+
+router.delete('/', [auth, [check('Title', 'Title is required').not().isEmpty(), check('company', 'Company is required').not().isEmpty(), check('from', 'From date is required').not().isEmpty()]], deleteUserProfilePosts);
 
 module.exports = router;
