@@ -164,9 +164,61 @@ const deleteExperience = async (req, res) => {
     await profile.save();
     res.json(profile);
   } catch(e) {
-
+    console.error(e);
+    res.status(500).json('Internal server error');
   }
 }
 
+const addEducation = async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({errors: errors.array()})
+  }
 
-module.exports = { getMyProfile, createOrUpdateProfile, getAllProfiles, getProfileByUserId, deleteUserProfilePosts, addExperience, deleteExperience };
+  const {
+    school,
+    degree,
+    fieldofstudy,
+    from,
+    to,
+    current,
+    description
+  } = req.body;
+
+  const newEdu = {
+    school,
+    degree,
+    fieldofstudy,
+    from,
+    to,
+    current,
+    description
+  }
+
+  try {
+    const profile = await Profile.findOne({user: req.user.id});
+    profile.education.unshift(newEdu);
+    await profile.save();
+    res.json(profile);
+  } catch(e) {
+    console.error(e);
+    res.status(500).json('Internal server error');
+  }
+};
+
+const removeEducation = async (req, res) => {
+  try {
+    const profile = await Profile.findOne({user: req.user.id});
+    // get remove index
+    const removeIndex = profile.education.map(item => item.id).indexOf(req.params.edu_id);
+
+    profile.education.splice(removeIndex, 1);
+    await profile.save();
+    res.json(profile);
+  } catch(e) {
+    console.error(e);
+    res.status(500).json('Internal server error');
+  }
+};
+
+module.exports = { getMyProfile, createOrUpdateProfile, getAllProfiles, getProfileByUserId, deleteUserProfilePosts, addExperience, deleteExperience, addEducation, removeEducation };
