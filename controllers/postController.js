@@ -58,4 +58,38 @@ const deletePost = async (req, res) => {
   }
 }
 
-module.exports = { createPost, getAllPosts, getOnePost, deletePost };
+const addLike = async (req, res) => {
+  try {
+    const post = await Post.findById(req.params.post_id);
+    // check if the post has already been liked by the user
+    if (post.likes.filter((like) => like.user.toString() === req.user.id).length > 0) {
+      return res.status(400).json({msg: 'Post already liked'});
+    }
+    post.likes.unshift({ user: req.user.id });
+    await post.save();
+    res.json(post.likes);
+  } catch(e) {
+    console.error(e);
+    res.status(500).json('Internal server error');
+  }
+}
+
+const removeLike = async (req, res) => {
+  try {
+    const post = await Post.findById(req.params.post_id);
+    if (post.likes.filter((like) => like.user.toString() === req.user.id).length === 0) {
+      return res.status(400).json({msg: 'Post has not been liked yet'});
+    }
+    
+    const removeIndex = post.likes.map(like => like.user.toString()).indexOf(req.user.id);
+
+    post.likes.splice(removeIndex, 1);
+    await post.save();
+    res.json(post);
+  } catch(e) {
+    console.error(e);
+    res.status(500).json('Internal server error');
+  }
+}
+
+module.exports = { createPost, getAllPosts, getOnePost, deletePost, addLike, removeLike };
