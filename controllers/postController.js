@@ -92,4 +92,57 @@ const removeLike = async (req, res) => {
   }
 }
 
-module.exports = { createPost, getAllPosts, getOnePost, deletePost, addLike, removeLike };
+const postComment = async (req, res) => {
+  const errors = validationResult(req);
+  if(!errors.isEmpty()) {
+    return res.status(400).json({errors: errors.array()});
+  }
+  try {
+    const user = await User.findById(req.user.id).select('-password');
+    const post = await Post.findById(req.params.post_id);
+
+    const newComment = {
+      text: req.body.text,
+      name: user.name,
+      avatar: user.avatar,
+      user: req.user.id
+    }
+    
+    post.comments.unshift(newComment);
+    await post.save();
+    res.json(post.comments);
+
+  } catch(e) {
+    console.error(e);
+    res.status(500).json('Internal server error');
+  }
+};
+
+const removeComment = async (req, res) => {
+  try {
+    const post = await Post.findById(req.params.post_id);
+    // pull out comment
+    const comment = post.comments.find(comment => comment.id === req.params.comment_id);
+    if(!comment) {
+      return res.status(404).json({msg: 'comment not found'});
+    }
+    // check user
+    if (comment.user.toString() !== req.user.id) {
+      return res.status(401).json({msg: 'unauthorized'});
+    }
+
+    const removeIndex = post.comments.map(
+      comment => comment.id.toString()
+    ).indexOf(req.params.comment_id);
+    
+    post.comments.splice(removeIndex, 1);
+
+    res.json(post.comments);
+
+  } catch(e) {
+    console.error(e);
+    res.status(500).json('Internal server error');
+  }
+};
+
+module.exports = { createPost, getAllPosts, getOnePost, deletePost, addLike, removeLike, postComment, removeComment };
