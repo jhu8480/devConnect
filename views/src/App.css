@@ -48,19 +48,19 @@ img {
 
 /* Text Styles*/
 .x-large {
-  font-size: 4rem;
+  font-size: 3.2rem;
   line-height: 1.2;
   margin-bottom: 1rem;
 }
 
 .large {
-  font-size: 3rem;
+  font-size: 2.2rem;
   line-height: 1.2;
   margin-bottom: 1rem;
 }
 
 .lead {
-  font-size: 1.5rem;
+  font-size: 1.2rem;
   margin-bottom: 1rem;
 }
 
